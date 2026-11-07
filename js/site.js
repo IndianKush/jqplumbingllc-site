@@ -7,9 +7,9 @@
    ============================================================ */
 window.JQ_CONFIG = {
   GA4_ID: "G-YNLCX6VTJM",
-  ADS_ID: "",
-  ADS_CALL_LABEL: "",
-  ADS_LEAD_LABEL: "",
+  ADS_ID: "AW-18473267140",
+  ADS_CALL_LABEL: "r0VCCNCOj7QdEMTf3uhE",
+  ADS_LEAD_LABEL: "mRLICM2Oj7QdEMTf3uhE",
   /* Where estimate requests are emailed (FormSubmit). After Jon activates it,
      swap the email for the random alias FormSubmit sends him, to hide the address from spammers. */
   FORM_ENDPOINT: "https://formsubmit.co/ajax/Jonq@jqplumbingllc.com"
@@ -33,7 +33,7 @@ window.JQ_CONFIG = {
     gtag("js", new Date());
     if (C.GA4_ID) gtag("config", C.GA4_ID);
   }
-  if (C.ADS_ID) gtag("config", C.ADS_ID);
+  if (C.ADS_ID && !inHead) gtag("config", C.ADS_ID);
 
   /* Fires one event two ways:
      1. dataLayer.push({event: name}) for Google Tag Manager triggers
