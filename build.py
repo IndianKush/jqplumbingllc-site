@@ -15,6 +15,8 @@ DIST = os.path.join(ROOT, "dist")
 import re as _re
 _m = _re.search(r'GA4_ID:\s*"([^"]*)"', open(os.path.join(DIST, "js", "site.js")).read())
 GA4_ID = _m.group(1) if _m else ""
+_a = _re.search(r'ADS_ID:\s*"([^"]*)"', open(os.path.join(DIST, "js", "site.js")).read())
+ADS_ID = _a.group(1) if _a else ""
 
 def gtag_head():
     if not GA4_ID:
@@ -22,7 +24,7 @@ def gtag_head():
     return (f'<!-- Google tag (gtag.js) -->\n'
             f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA4_ID}"></script>\n'
             f'<script>window.JQ_GTAG_IN_HEAD=true;window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}'
-            f'gtag("js",new Date());gtag("config","{GA4_ID}");</script>\n')
+            f'gtag("js",new Date());gtag("config","{GA4_ID}");' + (f'gtag("config","{ADS_ID}");' if ADS_ID else '') + '</script>\n')
 
 B = {
     "name": "JQ Plumbing LLC",
@@ -241,8 +243,8 @@ def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preload" href="/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/public-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=3">
-<script src="/js/site.js?v=3" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=4">
+<script src="/js/site.js?v=4" defer></script>
 {schema_tags}
 </head>
 <body>
