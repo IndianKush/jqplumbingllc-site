@@ -6,7 +6,7 @@
    Leave a value as "" to switch that part off.
    ============================================================ */
 window.JQ_CONFIG = {
-  GA4_ID: "",
+  GA4_ID: "G-YNLCX6VTJM",
   ADS_ID: "",
   ADS_CALL_LABEL: "",
   ADS_LEAD_LABEL: "",
@@ -21,16 +21,19 @@ window.JQ_CONFIG = {
   function gtag() { dataLayer.push(arguments); }
   window.gtag = window.gtag || gtag;
 
+  /* Every page already loads the Google tag base snippet in <head> for GA4_ID
+     (build.py reads GA4_ID from this file). Only load it here as a fallback. */
   var firstId = C.GA4_ID || C.ADS_ID;
-  if (firstId) {
+  var inHead = !!window.JQ_GTAG_IN_HEAD;
+  if (firstId && !inHead) {
     var s = document.createElement("script");
     s.async = true;
     s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(firstId);
     document.head.appendChild(s);
     gtag("js", new Date());
     if (C.GA4_ID) gtag("config", C.GA4_ID);
-    if (C.ADS_ID) gtag("config", C.ADS_ID);
   }
+  if (C.ADS_ID) gtag("config", C.ADS_ID);
 
   /* Fires one event two ways:
      1. dataLayer.push({event: name}) for Google Tag Manager triggers

@@ -11,6 +11,19 @@ from services import SERVICES
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
 
+# GA4 measurement ID lives in one place: JQ_CONFIG.GA4_ID in dist/js/site.js
+import re as _re
+_m = _re.search(r'GA4_ID:\s*"([^"]*)"', open(os.path.join(DIST, "js", "site.js")).read())
+GA4_ID = _m.group(1) if _m else ""
+
+def gtag_head():
+    if not GA4_ID:
+        return ""
+    return (f'<!-- Google tag (gtag.js) -->\n'
+            f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA4_ID}"></script>\n'
+            f'<script>window.JQ_GTAG_IN_HEAD=true;window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}'
+            f'gtag("js",new Date());gtag("config","{GA4_ID}");</script>\n')
+
 B = {
     "name": "JQ Plumbing LLC",
     "short": "JQ Plumbing",
@@ -213,7 +226,7 @@ def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(title)}</title>
+{gtag_head()}<title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{canonical}">
 <meta name="theme-color" content="#06173A">
@@ -228,8 +241,8 @@ def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preload" href="/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/public-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=2">
-<script src="/js/site.js?v=2" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=3">
+<script src="/js/site.js?v=3" defer></script>
 {schema_tags}
 </head>
 <body>
