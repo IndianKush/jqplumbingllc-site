@@ -112,5 +112,59 @@ window.JQ_CONFIG = {
     });
   });
 
+  /* Services dropdown (desktop): click or keyboard toggles it, hover is handled in CSS */
+  var menuItem = document.querySelector(".has-menu");
+  var menuBtn = menuItem && menuItem.querySelector(".menu-btn");
+  function setMenu(open) {
+    if (!menuItem) return;
+    menuItem.classList.toggle("open", open);
+    menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  if (menuBtn) {
+    menuBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      setMenu(!menuItem.classList.contains("open"));
+    });
+    document.addEventListener("click", function (e) { if (!menuItem.contains(e.target)) setMenu(false); });
+    menuItem.addEventListener("focusout", function (e) { if (!menuItem.contains(e.relatedTarget)) setMenu(false); });
+  }
+
+  /* Mobile menu */
+  var burger = document.querySelector(".burger");
+  var mMenu = document.getElementById("m-menu");
+  function setMobile(open) {
+    mMenu.hidden = !open;
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
+    burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    document.body.classList.toggle("menu-open", open);
+  }
+  if (burger && mMenu) {
+    burger.addEventListener("click", function () { setMobile(mMenu.hidden); });
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    setMenu(false);
+    if (burger && mMenu && !mMenu.hidden) { setMobile(false); burger.focus(); }
+  });
+
+  /* Contact page: preselect the service when arriving from a service page (?service=slug) */
+  var svcParam = new URLSearchParams(location.search).get("service");
+  if (svcParam) {
+    var map = {
+      "drain-cleaning-san-antonio": "Drain cleaning or clog",
+      "sewer-camera-inspection-san-antonio": "Sewer camera inspection",
+      "water-heater-repair-san-antonio": "Water heater",
+      "water-treatment-san-antonio": "Water treatment system",
+      "leak-detection-san-antonio": "Water leak",
+      "emergency-plumber-san-antonio": "Burst pipe or urgent repair",
+      "fixture-replacement-san-antonio": "Fixture or faucet replacement",
+      "plumbing-repair-san-antonio": "Plumbing repair",
+      "tunnel-work-san-antonio": "Under slab or tunnel work",
+      "commercial-plumbing-san-antonio": "Commercial plumbing"
+    };
+    var sel = document.querySelector('form.form select[name="service"]');
+    if (sel && map[svcParam]) sel.value = map[svcParam];
+  }
+
   document.querySelectorAll("[data-year]").forEach(function (el) { el.textContent = new Date().getFullYear(); });
 })();

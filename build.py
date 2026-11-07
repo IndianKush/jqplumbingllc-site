@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Builds the JQ Plumbing static site into ./dist.
-Edit the BUSINESS block or page copy here, then run: python3 build.py
+Facts live in B below, areas and reviews in data.py, service copy in services.py.
+Run: python3 build.py
 """
-import json, os, html
+import json, os, html, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from data import AREAS, REVIEWS
+from services import SERVICES
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
 
-# ---------------------------------------------------------------- business facts (from Jon)
 B = {
     "name": "JQ Plumbing LLC",
     "short": "JQ Plumbing",
@@ -17,19 +20,12 @@ B = {
     "license": "RMP-47009",
     "email": "Jonq@jqplumbingllc.com",
     "url": "https://jqplumbingllc.com",
-    "area": "San Antonio, TX and surrounding areas",
     "hours": "Monday to Friday, 9am to 5pm",
     "weekends": "Weekends are for scheduled and emergency work.",
     "years": "10",
     "maps": "https://maps.app.goo.gl/ebH1gkydNdcFtpzK9",
     "facebook": "https://www.facebook.com/61573244019779/",
 }
-
-AREAS = ['Schertz', 'New Braunfels', 'Canyon Lake', 'Bandera', 'Converse', 'Kirby', 'City Base', 'Castroville', 'Lytle', 'Devine', 'Somerset', 'Elmendorf', 'Floresville', 'Bulverde', 'Stone Oak', 'Boerne', 'Marion', 'Seguin', 'Universal City']
-
-# Paste Jon's real Google reviews here, word for word. Section stays hidden while empty.
-# Example: {"name": "Maria G.", "text": "Exact review text...", "stars": 5}
-REVIEWS = [{'name': 'Jose Torres', 'text': 'I had an excellent experience working with JQ Plumbing LLC during a recent home renovation. They handled several important plumbing projects, including installing a new water heater, bringing the plumbing up to code, and helping diagnose a gas leak.\n\nWhat impressed me most was the honesty and transparency throughout the entire process. From the beginning, he was upfront about pricing, clearly explained his recommendations, and made sure I understood the work that needed to be done. His pricing was also very reasonable and competitive.\n\nI especially appreciated that he was personally involved in much of the work alongside his crew. It’s clear that he takes pride in his workmanship and operates his business with a high level of integrity.\n\nFinding a contractor who is honest, dependable, and fairly priced isn’t always easy. JQ Plumbing LLC certainly earned my trust, and I would highly recommend them to anyone needing quality plumbing services. I wouldn’t hesitate to use them again!', 'stars': 5}, {'name': 'Crash_2600', 'text': 'I had major plumbing issues that I kept off for many years. A few weeks ago it finally caught up to me and I needed to fix it asap. I had about 6 estimates done and everyone’s was way out of my budget. Jonathan with JQ Plumbing LLC contacted me and was able to squeeze me in on a random day for an estimate.\n\nRight off the bat Jonathan and Jesse pointed out issues that I didn’t know were bad or getting to that point. They also mentioned faulty things with previous work that was done. They were very professional and thinking long term so I would never have to deal with this again. They were the lowest estimate of all the 6 others I received. Jonathan was very communicative with me and answering all the questions I had pertaining to the estimate and work, including the poorly installed water heater I had the previous year.\n\nWork began and I was impressed with the constant communication between myself and Jonathan, pertaining to the work being done. A price was set and work started. From the start they were on time and very professional. Jesse, Marcel, Jonathan, and Ismael were very courteous to my needs and were very professional when it came to my home. I was comfortable enough to leave them in my home without me being there and they were very professional in their up keep of the house after they were done for the day.\n\nEveryone was attentive and I am very happy and confident that the job was done right. Problems with the pipeline in different areas were brought up which added costs, but Jonathan was able to provide documentation so I wouldn’t feel like I was getting robbed, major kudos for that. I highly recommend JQ Plumbing LLC for any plumbing needs no matter how big or small. I am also very happy that they were attentive to my 2 dogs when I wasn’t there. All of them are a great team and work well together. Again, 5 star company and I would definitely hire these guys again. Communication, budget, professionalism, honesty, courtesy, and integrity were selling points for me, which they all achieved. ⭐️⭐️⭐️⭐️⭐️', 'stars': 5}, {'name': 'Sean Seaworth', 'text': 'I hired the team because they seemed the most prepared and most professional. They one hundred percent were. They did a great job done quickly and took care of all my needs. Will be using them exclusively going forward.', 'stars': 5}, {'name': 'Google reviewer', 'text': 'I needed an expansion tank replaced on my water heater additionally I needed a PRV replaced. JQ (Jonathan)showed up when he said he would, he finished the job in less time than he quoted. JQ and his helper were courteous and professionally in dress and in actions. I was pleased with the work they did and I will call JQ plumbing next time I need any type of plumbing work done. I just had some additional work done by JQ Plumbing. They did a great job: showed up when they said they would, finished when they said they would, charged m what they said they would. They also did a good job cleaning everything up. I will use them again!', 'stars': 5}]
 
 ICON = {
     "phone": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>',
@@ -39,10 +35,18 @@ ICON = {
     "clock": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 10.4 3.5 2.1-.8 1.3L11 13V7h2z"/></svg>',
     "pin": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg>',
     "check": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>',
+    "chev": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z"/></svg>',
+    "arrow": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg>',
+    "menu": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>',
+    "close": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg>',
+    "mail": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.2L4.6 7H4v.6l8 5.6 8-5.6V7h-.6z"/></svg>',
 }
 
 def esc(s):
     return html.escape(s, quote=True)
+
+def svc_path(s):
+    return "/" + s["slug"] + "/"
 
 def tel(loc, cls="", inner=None):
     inner = inner or B["phone_display"]
@@ -54,10 +58,20 @@ def pic(name, alt, sizes="(min-width: 960px) 50vw, 100vw", cls="", eager=False, 
             f'srcset="/img/{name}-640.webp 640w, /img/{name}-1200.webp 1200w" sizes="{sizes}" '
             f'width="{w}" height="{h}" alt="{esc(alt)}" {load}>')
 
-# ---------------------------------------------------------------- shared chunks
-def header(active=""):
-    nav = [("/#services", "Services"), ("/#about", "About"), ("/#area", "Service area"), ("/#estimate", "Free estimate")]
-    links = "".join(f'<a href="{h}">{t}</a>' for h, t in nav)
+def review_by(name):
+    return next(r for r in REVIEWS if r["name"] == name)
+
+# ---------------------------------------------------------------- header with services dropdown
+NAV = [("/about/", "About"), ("/reviews/", "Reviews"), ("/service-areas/", "Service areas"), ("/contact/", "Contact")]
+
+def header(active):
+    svc_active = active == "services" or active.startswith("svc:")
+    items = "".join(
+        f'<li><a href="{svc_path(s)}"{" aria-current=page" if active == "svc:" + s["slug"] else ""}>'
+        f'<strong>{s["name"]}</strong><span>{s["short"]}</span></a></li>' for s in SERVICES)
+    links = "".join(f'<li><a class="nav-link" href="{h}"{" aria-current=page" if active == h else ""}>{t}</a></li>' for h, t in NAV)
+    mobile_svcs = "".join(f'<li><a href="{svc_path(s)}">{s["name"]}</a></li>' for s in SERVICES)
+    mobile_links = "".join(f'<li><a class="m-link" href="{h}">{t}</a></li>' for h, t in NAV)
     return f'''<a class="skip" href="#main">Skip to content</a>
 <header class="topbar">
   <div class="wrap topbar-in">
@@ -65,8 +79,36 @@ def header(active=""):
       <img src="/img/logo-120.webp" width="130" height="120" alt="{B["short"]} logo, license {B["license"]}">
       <span class="brand-txt"><strong>{B["short"]}</strong><span>Lic. {B["license"]}</span></span>
     </a>
-    <nav class="nav" aria-label="Main">{links}</nav>
+    <nav class="nav" aria-label="Main">
+      <ul class="nav-list">
+        <li class="has-menu">
+          <button class="nav-link menu-btn{" is-active" if svc_active else ""}" type="button" aria-expanded="false" aria-controls="svc-menu">Services {ICON["chev"]}</button>
+          <div class="mega" id="svc-menu">
+            <div class="mega-in">
+              <ul class="mega-list">{items}</ul>
+              <div class="mega-foot">
+                <a class="mega-all" href="/services/">See all services {ICON["arrow"]}</a>
+                <span>Free estimates within city limits</span>
+              </div>
+            </div>
+          </div>
+        </li>
+        {links}
+      </ul>
+    </nav>
     {tel("header", "btn btn-call topcall", ICON["phone"] + '<span class="topcall-label">Call </span><span>' + B["phone_display"] + '</span>')}
+    <button class="burger" type="button" aria-expanded="false" aria-controls="m-menu" aria-label="Open menu"><span class="i-menu">{ICON["menu"]}</span><span class="i-close">{ICON["close"]}</span></button>
+  </div>
+  <div class="m-menu" id="m-menu" hidden>
+    <div class="wrap">
+      <details class="m-svcs"{" open" if svc_active else ""}>
+        <summary>Services {ICON["chev"]}</summary>
+        <ul>{mobile_svcs}<li><a class="m-all" href="/services/">See all services</a></li></ul>
+      </details>
+      <ul class="m-list">{mobile_links}</ul>
+      {tel("mobile_menu", "btn btn-call btn-block btn-lg", ICON["phone"] + "<span>Call " + B["phone_display"] + "</span>")}
+      <p class="m-hours">Open {B["hours"]}</p>
+    </div>
   </div>
 </header>'''
 
@@ -80,17 +122,15 @@ def facts_strip():
     lis = "".join(f'<li>{i}<div><strong>{a}</strong><span>{b}</span></div></li>' for i, a, b in items)
     return f'<section class="facts" aria-label="Why customers trust us"><ul class="wrap facts-list">{lis}</ul></section>'
 
-SERVICE_OPTIONS = ["Drain cleaning or clog", "Sewer camera inspection", "Water heater", "Water leak",
-                   "Burst pipe or urgent repair", "Fixture or faucet replacement", "Water treatment system",
-                   "Commercial plumbing", "Something else"]
+SERVICE_OPTIONS = [s["select"] for s in SERVICES] + ["Something else"]
 
-def form_block(heading="Get a free estimate", lead=None, preselect=""):
+def form_block(heading="Get a free estimate", lead=None, preselect="", sec_id="estimate"):
     lead = lead or f"Tell us what is going on and we will get back to you. Estimates are free within city limits. For anything urgent, call {B['phone_display']}."
     opts = "".join(f'<option{" selected" if o == preselect else ""}>{o}</option>' for o in SERVICE_OPTIONS)
-    return f'''<section class="estimate" id="estimate" aria-labelledby="estimate-h">
+    return f'''<section class="estimate" id="{sec_id}" aria-labelledby="{sec_id}-h">
   <div class="wrap estimate-grid">
     <div class="estimate-copy">
-      <h2 id="estimate-h">{heading}</h2>
+      <h2 id="{sec_id}-h">{heading}</h2>
       <p>{lead}</p>
       <div class="estimate-call">
         <span>Faster by phone</span>
@@ -99,7 +139,6 @@ def form_block(heading="Get a free estimate", lead=None, preselect=""):
       </div>
     </div>
     <form class="form" name="estimate" method="POST" novalidate>
-      <input type="hidden" name="form-name" value="estimate">
       <input type="hidden" name="page" value="">
       <p class="hp"><label>Leave this empty <input name="_honey" tabindex="-1" autocomplete="off"></label></p>
       <div class="row2">
@@ -119,43 +158,54 @@ def form_block(heading="Get a free estimate", lead=None, preselect=""):
   </div>
 </section>'''
 
+def cta_band(heading="Have a plumbing problem?", text=None):
+    text = text or f"Call us and talk to a licensed plumber. Estimates are free within city limits. Open {B['hours']}."
+    return f'''<section class="cta-band"><div class="wrap cta-in">
+  <div><h2>{heading}</h2><p>{text}</p></div>
+  <div class="cta-actions">{tel("cta_band", "btn btn-call btn-lg", ICON["phone"] + "<span>" + B["phone_display"] + "</span>")}
+  <a class="btn btn-ghost-light btn-lg" href="/contact/">Request an estimate</a></div>
+</div></section>'''
+
 def footer():
+    svc_links = "".join(f'<li><a href="{svc_path(s)}">{s["name"]}</a></li>' for s in SERVICES)
     return f'''<footer class="footer">
   <div class="wrap footer-grid">
     <div>
       <img src="/img/logo-120.webp" width="130" height="120" alt="{B["short"]} logo" loading="lazy">
       <p><strong>{B["name"]}</strong><br>Texas license {B["license"]}<br>Licensed and insured</p>
+      <p><a href="{B["maps"]}" rel="noopener" target="_blank">Find us on Google</a><br><a href="{B["facebook"]}" rel="noopener" target="_blank">Follow us on Facebook</a></p>
     </div>
-    <div>
-      <h2>Call us</h2>
-      <p>{tel("footer", "footer-phone")}<br>Open {B["hours"]}<br><a href="mailto:{B["email"]}">{B["email"]}</a></p>
-    </div>
-    <div>
+    <div class="footer-svcs">
       <h2>Services</h2>
+      <ul>{svc_links}</ul>
+    </div>
+    <div>
+      <h2>Company</h2>
       <ul>
-        <li><a href="/drain-cleaning-san-antonio/">Drain cleaning and camera inspection</a></li>
-        <li><a href="/water-heater-repair-san-antonio/">Water heater repair and installation</a></li>
-        <li><a href="/leak-detection-san-antonio/">Leak detection and repair</a></li>
-        <li><a href="/emergency-plumber-san-antonio/">Burst pipes and urgent repairs</a></li>
+        <li><a href="/about/">About us</a></li>
+        <li><a href="/reviews/">Reviews</a></li>
+        <li><a href="/service-areas/">Service areas</a></li>
+        <li><a href="/contact/">Contact</a></li>
+        <li><a href="/privacy/">Privacy policy</a></li>
       </ul>
     </div>
     <div>
-      <h2>Service area</h2>
-      <p>{B["area"]}</p>
-      <p><a href="{B["maps"]}" rel="noopener" target="_blank">Find us on Google</a><br><a href="{B["facebook"]}" rel="noopener" target="_blank">Follow us on Facebook</a></p>
+      <h2>Call us</h2>
+      <p>{tel("footer", "footer-phone")}<br>Open {B["hours"]}<br>{B["weekends"]}</p>
+      <p><a href="mailto:{B["email"]}">{B["email"]}</a></p>
     </div>
   </div>
   <div class="wrap footer-base">
     <span>&copy; <span data-year>2026</span> {B["name"]}. All rights reserved.</span>
-    <a href="/privacy/">Privacy policy</a>
+    <span>Serving San Antonio, TX and surrounding areas</span>
   </div>
 </footer>
 <div class="callbar" role="region" aria-label="Quick contact">
   {tel("sticky_bar", "callbar-call", ICON["phone"] + "<span>Call " + B["phone_display"] + "</span>")}
-  <a class="callbar-est" href="#estimate">Free estimate</a>
+  <a class="callbar-est" href="/contact/">Free estimate</a>
 </div>'''
 
-def page(path, title, desc, body, schema=None, og_img="/img/og.jpg"):
+def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
     canonical = B["url"] + path
     schema_tags = "".join(f'<script type="application/ld+json">{json.dumps(s, separators=(",", ":"))}</script>' for s in (schema or []))
     doc = f'''<!doctype html>
@@ -178,12 +228,12 @@ def page(path, title, desc, body, schema=None, og_img="/img/og.jpg"):
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preload" href="/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/public-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css">
-<script src="/js/site.js" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=2">
+<script src="/js/site.js?v=2" defer></script>
 {schema_tags}
 </head>
 <body>
-{header()}
+{header(active)}
 <main id="main">
 {body}
 </main>
@@ -214,20 +264,25 @@ BUSINESS_SCHEMA = {
     "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "09:00", "closes": "17:00"}],
     "hasCredential": {"@type": "EducationalOccupationalCredential", "credentialCategory": "license",
                       "name": "Texas Responsible Master Plumber license " + B["license"]},
-    "knowsAbout": ["Drain cleaning", "Sewer camera inspection", "Water heater repair", "Water heater installation",
-                   "Leak detection", "Water treatment systems", "Fixture replacement", "Tunnel work", "Commercial plumbing"],
+    "knowsAbout": [s["name"] for s in SERVICES],
     "sameAs": [B["maps"], B["facebook"]],
 }
 
-def crumbs(name, path):
-    return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Home", "item": B["url"] + "/"},
-        {"@type": "ListItem", "position": 2, "name": name, "item": B["url"] + path}]}
+def crumbs(trail):
+    items = [{"@type": "ListItem", "position": 1, "name": "Home", "item": B["url"] + "/"}]
+    for i, (name, path) in enumerate(trail, start=2):
+        items.append({"@type": "ListItem", "position": i, "name": name, "item": B["url"] + path})
+    return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items}
 
-def service_schema(name, path, desc):
-    return {"@context": "https://schema.org", "@type": "Service", "name": name, "serviceType": name,
-            "description": desc, "url": B["url"] + path, "provider": {"@id": B["url"] + "/#business"},
-            "areaServed": {"@type": "City", "name": "San Antonio"}}
+def crumb_nav(trail):
+    parts = ['<a href="/">Home</a>']
+    for i, (name, path) in enumerate(trail):
+        parts.append(f'<span>{name}</span>' if i == len(trail) - 1 else f'<a href="{path}">{name}</a>')
+    return '<nav class="crumbs" aria-label="Breadcrumb">' + ' <span aria-hidden="true">/</span> '.join(parts) + '</nav>'
+
+def faq_schema(faqs):
+    return {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faqs]}
 
 FAQ = [
     ("Do you give free estimates?", "Yes. Estimates are free within San Antonio city limits."),
@@ -239,25 +294,52 @@ FAQ = [
     ("What areas do you serve?", "San Antonio and the surrounding areas, including " + ", ".join(AREAS[:-1]) + " and " + AREAS[-1] + "."),
 ]
 
-def faq_schema():
-    return {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
-        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ]}
+def faq_html(faqs):
+    return "".join(f'<details><summary>{q}</summary><p>{a}</p></details>' for q, a in faqs)
 
-# ---------------------------------------------------------------- home
-SERVICES = [
-    ("/drain-cleaning-san-antonio/", "Drain cleaning and sewer camera inspection", "Clogged sinks, showers, toilets and main lines. We can run a camera down the line so you see the problem before you pay to fix it.", "drain-machine", "Drain cleaning machine clearing a commercial restroom drain"),
-    ("/water-heater-repair-san-antonio/", "Water heater repair and installation", "No hot water, a leaking tank or an old unit ready to go. We repair and install water heaters, plus water treatment systems.", "water-heater-team", "JQ Plumbing team working on a wall mounted water heater"),
-    ("/leak-detection-san-antonio/", "Water leak detection and repair", "High water bill, damp floors or low pressure. We track down the leak and fix it, including tunnel work under slabs.", "pressure-gauge", "Pressure gauge on an outdoor hose bib during a water pressure test"),
-    ("/emergency-plumber-san-antonio/", "Burst pipes and urgent repairs", f"Water where it should not be? Call us right away during business hours, {B['hours']}.", "tunnel", "Plumber crawling through a tunnel under a slab to reach a broken pipe"),
-]
+def svc_cards(cls="svc-grid"):
+    cards = "".join(f'''<li><a class="svc-card" href="{svc_path(s)}">
+  <span class="svc-card-img">{pic(s["hero"][0], s["hero"][1], sizes="(min-width: 960px) 30vw, (min-width: 600px) 45vw, 92vw")}</span>
+  <span class="svc-card-body"><h3>{s["name"]}</h3><p>{s["intro"]}</p><span class="svc-card-more">View service {ICON["arrow"]}</span></span>
+</a></li>''' for s in SERVICES)
+    return f'<ul class="{cls}">{cards}</ul>'
 
+def review_card(r, full=False):
+    paras = [esc(x) for x in r["text"].split("\n\n")]
+    if full:
+        body = "".join(f"<p>{x}</p>" for x in paras)
+    else:
+        more = "".join(f"<p>{x}</p>" for x in paras[1:])
+        body = f"<p>{paras[0]}</p>" + (f'<details class="rev-more"><summary>Read full review</summary>{more}</details>' if more else "")
+    return (f'<blockquote class="review"><div class="stars" role="img" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'
+            f'{body}<footer>{esc(r["name"])}, Google review</footer></blockquote>')
+
+def steps_html():
+    steps = [
+        ("Call or send a request", f"Call {B['phone_display']} or send the estimate form. Tell us what is going on."),
+        ("Get a clear estimate", "We look at the problem and give you a clear price before any work starts. Estimates are free within city limits."),
+        ("We do the work right", "Licensed, background checked plumbers do the job and clean up when they are done."),
+        ("Covered by warranty", "Parts carry the manufacturer warranty, and our workmanship is covered for 90 days to 1 year depending on the job."),
+    ]
+    lis = "".join(f'<li><span class="step-n" aria-hidden="true">{i}</span><h3>{t}</h3><p>{d}</p></li>' for i, (t, d) in enumerate(steps, 1))
+    return f'''<section class="steps"><div class="wrap">
+  <div class="sec-head"><h2>How it works</h2><p>Simple, upfront and no surprises.</p></div>
+  <ol class="steps-list">{lis}</ol>
+</div></section>'''
+
+def page_hero(h1, sub, trail, extra=""):
+    return f'''<section class="page-hero"><div class="wrap">
+  {crumb_nav(trail)}
+  <h1>{h1}</h1>
+  <p class="hero-sub">{sub}</p>
+  <div class="hero-actions">
+    {tel("page_hero", "btn btn-call btn-lg", ICON["phone"] + "<span>Call " + B["phone_display"] + "</span>")}
+    {extra}
+  </div>
+</div></section>'''
+
+# ---------------------------------------------------------------- pages
 def home():
-    rows = "".join(f'''<li class="svc">
-  <a href="{h}">
-    {pic(img, alt, sizes="(min-width: 960px) 220px, 34vw", cls="svc-img")}
-    <div class="svc-txt"><h3>{t}</h3><p>{d}</p><span class="svc-more">See {t.split(" and ")[0].lower()} details</span></div>
-  </a></li>''' for h, t, d, img, alt in SERVICES)
-
     gallery = [
         ("camera-pipe", "Sewer camera inspection showing the inside of a drain line"),
         ("slab-roughin", "Under slab plumbing laid out before a concrete pour"),
@@ -265,30 +347,12 @@ def home():
         ("faucet-brushed", "Newly installed brushed nickel kitchen faucet"),
         ("meter-line", "New water service line connected at the meter box"),
         ("under-sink", "New kitchen sink drain and trap under the counter"),
-        ("trench-dig", "JQ Plumbing plumber digging to reach a buried line"),
+        ("tunnel", "Plumber working in a tunnel under a slab"),
         ("roof-vent", "Plumber running a camera down a roof vent stack"),
     ]
     gal = "".join(f'<figure>{pic(n, a, sizes="(min-width: 960px) 25vw, 50vw")}<figcaption>{a}</figcaption></figure>' for n, a in gallery)
-
-    if REVIEWS:
-        def card(r):
-            paras = [esc(x) for x in r["text"].split("\n\n")]
-            more = "".join(f"<p>{x}</p>" for x in paras[1:])
-            more = f'<details class="rev-more"><summary>Read full review</summary>{more}</details>' if more else ""
-            return (f'<blockquote class="review"><div class="stars" role="img" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'
-                    f'<p>{paras[0]}</p>{more}<footer>{esc(r["name"])}, Google review</footer></blockquote>')
-        cards = "".join(card(r) for r in REVIEWS)
-        reviews = f'''<section class="reviews" id="reviews" aria-labelledby="rev-h"><div class="wrap">
-<h2 id="rev-h">What customers say</h2><p class="rev-sub">Real reviews from our customers on Google, word for word.</p><div class="review-list">{cards}</div>
-<p><a class="btn btn-ghost" href="{B["maps"]}" target="_blank" rel="noopener">Read all our reviews on Google</a></p></div></section>'''
-    else:
-        reviews = f'''<section class="reviews" id="reviews" aria-labelledby="rev-h"><div class="wrap reviews-empty">
-<h2 id="rev-h">See what your neighbors say</h2>
-<p>Our reviews come straight from customers on Google.</p>
-<a class="btn btn-ghost" href="{B["maps"]}" target="_blank" rel="noopener">Read our Google reviews</a></div></section>'''
-
-    faq = "".join(f'<details><summary>{q}</summary><p>{a}</p></details>' for q, a in FAQ)
-
+    reviews = "".join(review_card(review_by(n)) for n in ["Jose Torres", "Crash_2600"])
+    towns = "".join(f"<li>{a}</li>" for a in AREAS[:10])
     body = f'''<section class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
@@ -300,7 +364,7 @@ def home():
       </div>
       <div class="hero-actions">
         {tel("hero_button", "btn btn-call btn-lg", ICON["phone"] + "<span>Call now</span>")}
-        <a class="btn btn-ghost-light btn-lg" href="#estimate">Get a free estimate</a>
+        <a class="btn btn-ghost-light btn-lg" href="/contact/">Get a free estimate</a>
       </div>
     </div>
     <figure class="hero-photo">
@@ -310,202 +374,278 @@ def home():
   </div>
 </section>
 {facts_strip()}
-<section class="services" id="services" aria-labelledby="svc-h">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2 id="svc-h">Plumbing services</h2>
-      <p>Residential and commercial work across San Antonio. Fixture replacement, general repairs and tunnel work too.</p>
-    </div>
-    <ul class="svc-list">{rows}</ul>
+<section class="services"><div class="wrap">
+  <div class="sec-head sec-head-row">
+    <div><h2>Plumbing services</h2><p>Residential and commercial plumbing across San Antonio and the surrounding areas.</p></div>
+    <a class="link-arrow" href="/services/">All services {ICON["arrow"]}</a>
   </div>
-</section>
-<section class="about" id="about" aria-labelledby="about-h">
-  <div class="wrap about-grid">
-    <figure class="about-photo">{pic("jon", f"{B['owner']}, owner of JQ Plumbing LLC", sizes="(min-width: 960px) 34vw, 100vw")}</figure>
-    <div class="about-copy">
-      <h2 id="about-h">Local, family owned, and here for the long run</h2>
-      <p>JQ Plumbing is a local, family owned company. {B["owner"]} and his wife own the business, and our employees are family men too. Jonathan is a licensed plumber with {B["years"]} years of experience.</p>
-      <p>We are focused on giving real value and the best customer experience possible. When you call, you get plumbers who are honest, trustworthy, skilled and reliable, and giving back to the community is important to us.</p>
-      <ul class="ticks">
-        <li>{ICON["check"]}Fully licensed and insured, Texas license {B["license"]}</li>
-        <li>{ICON["check"]}Licensed plumbers, fingerprint background checked</li>
-        <li>{ICON["check"]}Residential and commercial service</li>
-        <li>{ICON["check"]}Manufacturer warranty on all parts, plus 90 days to 1 year on workmanship</li>
-        <li>{ICON["check"]}Free estimates within city limits</li>
-        <li>{ICON["check"]}Military, first responder and teacher discount with valid ID</li>
-      </ul>
-    </div>
+  {svc_cards()}
+</div></section>
+<section class="about"><div class="wrap about-grid">
+  <figure class="about-photo">{pic("jon", f"{B['owner']}, owner of JQ Plumbing LLC", sizes="(min-width: 960px) 34vw, 100vw")}</figure>
+  <div class="about-copy">
+    <h2>Local, family owned, and here for the long run</h2>
+    <p>JQ Plumbing is owned by {B["owner"]} and his wife. Jonathan is a licensed plumber with {B["years"]} years of experience, and our employees are family men too.</p>
+    <p>We are focused on giving real value and the best customer experience possible. Honest, trustworthy, skilled and reliable is how we work.</p>
+    <a class="btn btn-ghost" href="/about/">More about us</a>
   </div>
-</section>
-<section class="work" aria-labelledby="work-h">
-  <div class="wrap">
-    <div class="sec-head"><h2 id="work-h">Recent jobs</h2><p>Real photos from our job sites. No stock pictures.</p></div>
-    <div class="gallery">{gal}</div>
+</div></section>
+{steps_html()}
+<section class="work"><div class="wrap">
+  <div class="sec-head"><h2>Recent jobs</h2><p>Real photos from our job sites. No stock pictures.</p></div>
+  <div class="gallery">{gal}</div>
+</div></section>
+<section class="reviews"><div class="wrap">
+  <div class="sec-head sec-head-row">
+    <div><h2>What customers say</h2><p class="rev-sub">Real reviews from our customers on Google, word for word.</p></div>
+    <a class="link-arrow link-light" href="/reviews/">All reviews {ICON["arrow"]}</a>
   </div>
-</section>
-{reviews}
-<section class="area" id="area" aria-labelledby="area-h">
-  <div class="wrap area-grid">
-    <div>
-      <h2 id="area-h">Serving San Antonio and surrounding areas</h2>
-      <p>We work throughout San Antonio, TX and nearby communities. Estimates are free within city limits. Not sure if we cover your street? Give us a call.</p>
-      <ul class="towns">{"".join(f"<li>{a}</li>" for a in AREAS)}</ul>
-      <p class="muted">Hours: {B["hours"]}. {B["weekends"]}</p>
-      {tel("area", "btn btn-call", ICON["phone"] + "<span>" + B["phone_display"] + "</span>")}
-    </div>
-    <div class="faq">
-      <h2 class="faq-h">Common questions</h2>
-      {faq}
-    </div>
+  <div class="review-list">{reviews}</div>
+</div></section>
+<section class="area"><div class="wrap area-grid">
+  <div>
+    <h2>Serving San Antonio and surrounding areas</h2>
+    <p>We work throughout San Antonio, TX and nearby communities. Estimates are free within city limits.</p>
+    <ul class="towns">{towns}<li class="towns-more"><a href="/service-areas/">and {len(AREAS) - 10} more</a></li></ul>
+    <a class="link-arrow" href="/service-areas/">See all service areas {ICON["arrow"]}</a>
   </div>
-</section>
+  <div class="faq">
+    <h2 class="faq-h">Common questions</h2>
+    {faq_html(FAQ[:5])}
+  </div>
+</div></section>
 {form_block()}'''
     page("/", "Licensed Plumber in San Antonio, TX | JQ Plumbing LLC",
          f"Licensed, insured, family owned plumbers in San Antonio. Drains, water heaters, leaks and repairs. Free estimates in city limits. Call {B['phone_display']}.",
-         body, [BUSINESS_SCHEMA, faq_schema()])
+         body, "home", [BUSINESS_SCHEMA, faq_schema(FAQ)])
 
-# ---------------------------------------------------------------- service pages
-def service_page(p):
-    lists = "".join(f'<li>{ICON["check"]}{i}</li>' for i in p["handle"])
-    signs = "".join(f"<li>{s}</li>" for s in p["signs"])
-    extra = p.get("extra", "")
-    photos = "".join(f'<figure>{pic(n, a, sizes="(min-width: 960px) 30vw, 50vw")}<figcaption>{a}</figcaption></figure>' for n, a in p["photos"])
-    others = "".join(f'<li><a href="{h}">{t}</a></li>' for h, t, *_ in SERVICES if h != p["path"])
+def services_index():
+    body = page_hero("Plumbing services in San Antonio",
+                     "Residential and commercial plumbing from licensed, background checked plumbers. Choose a service to see what is included.",
+                     [("Services", "/services/")],
+                     '<a class="btn btn-ghost-light btn-lg" href="/contact/">Get a free estimate</a>')
+    body += facts_strip()
+    body += f'<section class="services"><div class="wrap">{svc_cards()}</div></section>'
+    body += steps_html() + cta_band()
+    page("/services/", "Plumbing Services in San Antonio, TX | JQ Plumbing LLC",
+         "Drain cleaning, sewer camera inspection, water heaters, water treatment, leak detection, fixtures, repairs, tunnel work and commercial plumbing in San Antonio.",
+         body, "services", [BUSINESS_SCHEMA, crumbs([("Services", "/services/")])])
+
+def service_page(s):
+    path = svc_path(s)
+    handle = "".join(f'<li>{ICON["check"]}<span>{i}</span></li>' for i in s["handle"])
+    signs = "".join(f"<li>{x}</li>" for x in s["signs"])
+    photos = "".join(f'<figure>{pic(n, a, sizes="(min-width: 960px) 30vw, 50vw")}<figcaption>{a}</figcaption></figure>' for n, a in s["photos"])
+    lead = "".join(f"<p>{p}</p>" for p in s["lead"])
+    rname, ridx = s["review"]
+    r = review_by(rname)
+    quote = esc(r["text"].split("\n\n")[ridx])
+    related = [x for x in SERVICES if x is not s][:3] if s["slug"] != SERVICES[0]["slug"] else SERVICES[1:4]
+    idx = SERVICES.index(s)
+    related = [SERVICES[(idx + k) % len(SERVICES)] for k in (1, 2, 3)]
+    rel = "".join(f'<li><a class="rel-card" href="{svc_path(x)}"><strong>{x["name"]}</strong><span>{x["short"]}</span>{ICON["arrow"]}</a></li>' for x in related)
+    faqs = s["faqs"] + [FAQ[0], FAQ[2]]
+    trail = [("Services", "/services/"), (s["name"], path)]
     body = f'''<section class="hero hero-svc">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">/</span> <span>{p["crumb"]}</span></nav>
-      <h1>{p["h1"]}</h1>
-      <p class="hero-sub">{p["intro"]}</p>
+      {crumb_nav(trail)}
+      <h1>{s["h1"]}</h1>
+      <p class="hero-sub">{s["intro"]}</p>
       <div class="hero-call">
         {tel("hero_number", "bignum", B["phone_display"])}
         <p class="hero-call-note">{ICON["clock"]}<span>Tap to call. Open {B["hours"]}.</span></p>
       </div>
       <div class="hero-actions">
         {tel("hero_button", "btn btn-call btn-lg", ICON["phone"] + "<span>Call now</span>")}
-        <a class="btn btn-ghost-light btn-lg" href="#estimate">Get a free estimate</a>
+        <a class="btn btn-ghost-light btn-lg" href="/contact/?service={s["slug"]}">Get a free estimate</a>
       </div>
     </div>
-    <figure class="hero-photo">{pic(p["hero"][0], p["hero"][1], sizes="(min-width: 960px) 40vw, 100vw", eager=True)}</figure>
+    <figure class="hero-photo">{pic(s["hero"][0], s["hero"][1], sizes="(min-width: 960px) 40vw, 100vw", eager=True)}<figcaption>{s["hero"][2]}</figcaption></figure>
   </div>
 </section>
 {facts_strip()}
-<section class="detail">
-  <div class="wrap detail-grid">
-    <div>
-      <h2>{p["handle_h"]}</h2>
-      <ul class="ticks">{lists}</ul>
-      {extra}
-    </div>
-    <aside class="signs">
-      <h2>{p["signs_h"]}</h2>
-      <ul>{signs}</ul>
-      <p>{p["signs_cta"]}</p>
-      {tel("signs_box", "btn btn-call btn-block", ICON["phone"] + "<span>Call " + B["phone_display"] + "</span>")}
-    </aside>
+<section class="overview"><div class="wrap overview-grid">
+  <div class="overview-copy">
+    <h2>{s["name"]} done right</h2>
+    {lead}
   </div>
-</section>
-<section class="work">
-  <div class="wrap">
-    <div class="sec-head"><h2>From our job sites</h2></div>
-    <div class="gallery gallery-3">{photos}</div>
+  <div class="handle">
+    <h3>What we handle</h3>
+    <ul>{handle}</ul>
   </div>
-</section>
-{form_block(preselect=p["select"])}
-<section class="more"><div class="wrap"><h2>Other services</h2><ul class="more-list">{others}</ul></div></section>'''
-    page(p["path"], p["title"], p["desc"], body,
-         [BUSINESS_SCHEMA, service_schema(p["crumb"], p["path"], p["desc"]), crumbs(p["crumb"], p["path"])])
+</div></section>
+<section class="signs-sec"><div class="wrap signs-grid">
+  <div>
+    <h2>{s["signs_h"]}</h2>
+    <ul class="signs-list">{signs}</ul>
+  </div>
+  <aside class="signs-note">
+    <p>{s["signs_note"]}</p>
+    {tel("signs_box", "btn btn-call btn-block btn-lg", ICON["phone"] + "<span>Call " + B["phone_display"] + "</span>")}
+    <p class="muted">Open {B["hours"]}. {B["weekends"]}</p>
+  </aside>
+</div></section>
+{steps_html()}
+<section class="work"><div class="wrap">
+  <div class="sec-head"><h2>From our job sites</h2><p>Real photos of our work. No stock pictures.</p></div>
+  <div class="gallery gallery-{len(s["photos"])}">{photos}</div>
+</div></section>
+<section class="quote-sec"><div class="wrap narrow">
+  <figure class="quote">
+    <div class="stars" role="img" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+    <blockquote><p>{quote}</p></blockquote>
+    <figcaption>{esc(r["name"])}, Google review <a href="/reviews/">Read more reviews</a></figcaption>
+  </figure>
+</div></section>
+<section class="svc-faq"><div class="wrap narrow faq">
+  <h2>Questions about {s["name"].lower()}</h2>
+  {faq_html(faqs)}
+</div></section>
+{form_block(heading="Get a free estimate", preselect=s["select"])}
+<section class="related"><div class="wrap">
+  <div class="sec-head sec-head-row"><h2>Related services</h2><a class="link-arrow" href="/services/">All services {ICON["arrow"]}</a></div>
+  <ul class="rel-list">{rel}</ul>
+</div></section>'''
+    page(path, s["title"], s["desc"], body, "svc:" + s["slug"],
+         [BUSINESS_SCHEMA,
+          {"@context": "https://schema.org", "@type": "Service", "name": s["name"], "serviceType": s["name"],
+           "description": s["desc"], "url": B["url"] + path, "provider": {"@id": B["url"] + "/#business"},
+           "areaServed": {"@type": "City", "name": "San Antonio"}},
+          crumbs(trail), faq_schema(faqs)])
 
-PAGES = [
-    {
-        "path": "/drain-cleaning-san-antonio/",
-        "crumb": "Drain cleaning and sewer camera inspection",
-        "title": "Drain Cleaning and Camera Inspection in San Antonio | JQ Plumbing",
-        "desc": f"Clogged drain or sewer backup in San Antonio? Licensed plumbers for drain cleaning and sewer camera inspections. Free estimates in city limits. Call {B['phone_display']}.",
-        "h1": "Drain cleaning and sewer camera inspection in San Antonio",
-        "intro": "Slow sinks, backed up toilets, or a main line that keeps clogging. We clear the drain and, when it makes sense, put a camera in the line so you can see exactly what is causing it.",
-        "hero": ("drain-machine", "Drain cleaning machine clearing a commercial restroom drain in San Antonio"),
-        "handle_h": "What we handle",
-        "handle": ["Kitchen, bathroom, shower and tub drains", "Toilet clogs and backups", "Main sewer line clogs", "Sewer camera inspections", "Residential and commercial drains"],
-        "signs_h": "Signs it is time to call",
-        "signs": ["Water draining slowly or not at all", "Gurgling sounds from drains or toilets", "Sewage smell inside or outside the house", "More than one fixture backing up at the same time"],
-        "signs_cta": "More than one drain backing up usually points to the main line. Call before it overflows.",
-        "photos": [("camera-pipe", "Camera view inside a drain line during an inspection"), ("bathroom-drain", "Drain machine set up to clear a shower drain"), ("camera-pipe-2", "Sewer camera monitor showing the inside of a pipe")],
-        "select": "Drain cleaning or clog",
-    },
-    {
-        "path": "/water-heater-repair-san-antonio/",
-        "crumb": "Water heater repair and installation",
-        "title": "Water Heater Repair and Installation in San Antonio | JQ Plumbing",
-        "desc": f"No hot water? Licensed San Antonio plumbers for water heater repairs and installs, plus water treatment systems. Free estimates in city limits. Call {B['phone_display']}.",
-        "h1": "Water heater repair and installation in San Antonio",
-        "intro": "Cold showers, a leaking tank, or a heater that is near the end of its life. We repair and install water heaters, and we install water treatment systems too.",
-        "hero": ("water-heater-team", "JQ Plumbing team working on a water heater at a home"),
-        "handle_h": "What we handle",
-        "handle": ["Water heater repairs", "Water heater replacement and installation", "Water treatment and softener systems", "Residential and commercial units"],
-        "signs_h": "Signs your water heater needs help",
-        "signs": ["No hot water, or it runs out fast", "Water pooling around the base of the tank", "Rusty or discolored hot water", "Popping or rumbling sounds from the tank"],
-        "signs_cta": "A leaking tank can get worse quickly. Turn off the water supply to the heater and give us a call.",
-        "photos": [("water-softener", "Water treatment system installed in a utility closet"), ("softener-open", "Control panel of a newly installed water softener"), ("hero-tankless", "JQ Plumbing crew working on a water heater")],
-        "select": "Water heater",
-    },
-    {
-        "path": "/leak-detection-san-antonio/",
-        "crumb": "Water leak detection and repair",
-        "title": "Water Leak Detection and Repair in San Antonio | JQ Plumbing",
-        "desc": f"Hidden water leak in San Antonio? Licensed plumbers who find and fix leaks, including under slab tunnel work. Free estimates in city limits. Call {B['phone_display']}.",
-        "h1": "Water leak detection and repair in San Antonio",
-        "intro": "A high water bill or a damp spot that will not dry usually means water is going somewhere it should not. We find the leak and repair it.",
-        "hero": ("pressure-gauge", "Water pressure gauge on an outdoor spigot during a leak test"),
-        "handle_h": "What we handle",
-        "handle": ["Finding hidden water leaks", "Water line and pipe repairs", "Pressure testing", "Water service lines at the meter", "Tunnel work to reach pipes under a slab"],
-        "signs_h": "Signs you may have a leak",
-        "signs": ["Water bill higher than usual with no change in use", "Water meter moving while every tap is off", "Damp floors, walls or ceilings", "Low water pressure", "Sound of running water when nothing is on"],
-        "signs_cta": "The longer a leak runs, the more it costs. Call us and we will track it down.",
-        "photos": [("meter-line", "New water line connected at the meter box"), ("tunnel", "Plumber in a tunnel under a slab reaching a broken pipe"), ("gas-gauge", "Pressure test gauge on a line")],
-        "select": "Water leak",
-    },
-    {
-        "path": "/emergency-plumber-san-antonio/",
-        "crumb": "Burst pipes and urgent repairs",
-        "title": "Burst Pipe and Urgent Plumbing Repair in San Antonio | JQ Plumbing",
-        "desc": f"Burst pipe or active leak in San Antonio? Licensed, insured local plumbers for urgent repairs, weekdays and weekend emergencies. Call {B['phone_display']}.",
-        "h1": "Burst pipe or urgent plumbing problem in San Antonio?",
-        "intro": f"Water spraying, flooding, or a line that just broke. Call us right away. We are open {B['hours']}, and weekends are for scheduled and emergency work.",
-        "hero": ("tunnel", "Plumber in a tunnel under a slab repairing a broken pipe"),
-        "handle_h": "What we handle",
-        "handle": ["Burst and broken pipes", "Active leaks and water line breaks", "Backed up drains and sewer lines", "Leaking water heaters", "Residential and commercial properties"],
-        "signs_h": "What to do right now",
-        "signs": ["Shut off your main water valve. It is usually near the street or where the line enters the house.", "If the water heater is leaking, turn off its water supply and power or gas.", "Move valuables and electronics away from the water.", "Call us and tell us what you see."],
-        "signs_cta": f"Our hours are {B['hours']}. The earlier you call, the sooner we can get to you.",
-        "photos": [("trench-dig", "Plumber digging to reach a broken water line"), ("sewer-trench", "Open trench for a sewer line repair"), ("yard-cleanout", "New cleanout caps installed in a front yard")],
-        "select": "Burst pipe or urgent repair",
-        "extra": f'<p class="note">{ICON["clock"]}<span>We are not a 24 hour service. Our hours are {B["hours"]}. {B["weekends"]}</span></p>',
-    },
-]
+def about():
+    values = [("Honest", "Clear prices before the work starts and straight answers about the work."),
+              ("Trustworthy", "Licensed, insured and fingerprint background checked plumbers in your home or business."),
+              ("Skilled", f"{B['years']} years in the trade, licensed under Texas license {B['license']}."),
+              ("Reliable", "We stand behind our warranty and our work.")]
+    vals = "".join(f"<li><h3>{t}</h3><p>{d}</p></li>" for t, d in values)
+    body = page_hero("About JQ Plumbing", "A local, family owned plumbing company serving San Antonio homes and businesses.", [("About", "/about/")],
+                     '<a class="btn btn-ghost-light btn-lg" href="/contact/">Get a free estimate</a>')
+    body += f'''<section class="story"><div class="wrap about-grid">
+  <figure class="about-photo">{pic("jon", f"{B['owner']}, owner of JQ Plumbing LLC", sizes="(min-width: 960px) 34vw, 100vw", eager=True)}</figure>
+  <div class="about-copy">
+    <h2>Family owned, and it shows</h2>
+    <p>JQ Plumbing LLC is a local, family owned company. {B["owner"]} and his wife own the business, and our employees are family men too. Jonathan has been plumbing for {B["years"]} years and is a licensed plumber.</p>
+    <p>We are hard focused on providing value and the best customer experience possible. That means showing up, explaining the work clearly, doing it right and cleaning up after ourselves.</p>
+    <p>Giving back to the community is important to us.</p>
+  </div>
+</div></section>
+<section class="values"><div class="wrap">
+  <div class="sec-head"><h2>How we work</h2></div>
+  <ul class="values-list">{vals}</ul>
+</div></section>
+<section class="creds"><div class="wrap creds-grid">
+  <div><h2>Licensed, insured and covered</h2></div>
+  <ul class="ticks">
+    <li>{ICON["check"]}Fully licensed and insured, Texas license {B["license"]}</li>
+    <li>{ICON["check"]}Licensed plumbers, fingerprint background checked</li>
+    <li>{ICON["check"]}Residential and commercial service</li>
+    <li>{ICON["check"]}Manufacturer warranty on all parts, plus 90 days to 1 year on workmanship</li>
+    <li>{ICON["check"]}Free estimates within city limits</li>
+    <li>{ICON["check"]}Military, first responder and teacher discount with valid ID</li>
+  </ul>
+</div></section>
+<section class="work"><div class="wrap">
+  <div class="sec-head"><h2>Our work</h2></div>
+  <div class="gallery">{"".join(f'<figure>{pic(n, a, sizes="(min-width: 960px) 25vw, 50vw")}<figcaption>{a}</figcaption></figure>' for n, a in [("water-heater-team", "Our crew on a water heater job"), ("tunnel", "Tunnel work under a slab"), ("slab-wide", "Under slab plumbing before a pour"), ("faucet-gold", "A new kitchen faucet install")])}</div>
+</div></section>
+{cta_band()}'''
+    page("/about/", "About JQ Plumbing LLC | Family Owned San Antonio Plumbers",
+         f"JQ Plumbing LLC is a local, family owned, licensed and insured plumbing company in San Antonio. {B['years']} years in the trade. Texas license {B['license']}.",
+         body, "/about/", [BUSINESS_SCHEMA, crumbs([("About", "/about/")])])
+
+def reviews_page():
+    cards = "".join(review_card(r, full=True) for r in REVIEWS)
+    body = page_hero("Customer reviews", "Real reviews from our customers on Google, shared word for word.", [("Reviews", "/reviews/")],
+                     f'<a class="btn btn-ghost-light btn-lg" href="{B["maps"]}" target="_blank" rel="noopener">See us on Google</a>')
+    body += f'''<section class="reviews reviews-page"><div class="wrap">
+  <div class="review-list review-masonry">{cards}</div>
+  <p class="center"><a class="btn btn-ghost" href="{B["maps"]}" target="_blank" rel="noopener">Read all our reviews on Google</a></p>
+</div></section>
+{cta_band("Ready to be our next happy customer?")}'''
+    page("/reviews/", "Reviews | JQ Plumbing LLC, San Antonio Plumber",
+         "Read real Google reviews from JQ Plumbing LLC customers in San Antonio. Honest, upfront, on time and fairly priced plumbing.",
+         body, "/reviews/", [BUSINESS_SCHEMA, crumbs([("Reviews", "/reviews/")])])
+
+def areas_page():
+    towns = "".join(f'<li>{ICON["pin"]}<span>{a}</span></li>' for a in ["San Antonio"] + AREAS)
+    body = page_hero("Service areas", "Licensed plumbing for San Antonio, TX and the surrounding communities.", [("Service areas", "/service-areas/")],
+                     '<a class="btn btn-ghost-light btn-lg" href="/contact/">Get a free estimate</a>')
+    body += f'''<section class="areas-sec"><div class="wrap areas-grid">
+  <div class="areas-copy">
+    <h2>Where we work</h2>
+    <p>JQ Plumbing serves homes and businesses across San Antonio and these nearby communities. Estimates are free within city limits.</p>
+    <p>Do not see your town? Give us a call and ask.</p>
+    <p class="muted">Open {B["hours"]}. {B["weekends"]}</p>
+  </div>
+  <ul class="town-grid">{towns}</ul>
+</div></section>
+<section class="services"><div class="wrap">
+  <div class="sec-head"><h2>Services in every area we cover</h2></div>
+  {svc_cards()}
+</div></section>
+{cta_band()}'''
+    page("/service-areas/", "Plumbing Service Areas Around San Antonio, TX | JQ Plumbing",
+         "JQ Plumbing serves San Antonio, Schertz, New Braunfels, Boerne, Seguin, Converse, Universal City, Stone Oak and more. Free estimates in city limits.",
+         body, "/service-areas/", [BUSINESS_SCHEMA, crumbs([("Service areas", "/service-areas/")])])
+
+def contact_page():
+    body = f'''<section class="page-hero"><div class="wrap">
+  {crumb_nav([("Contact", "/contact/")])}
+  <h1>Contact JQ Plumbing</h1>
+  <p class="hero-sub">Call to talk to a licensed plumber, or send a request and we will get back to you.</p>
+</div></section>
+<section class="contact-cards"><div class="wrap contact-grid">
+  <div class="c-card c-card-main">
+    <h2>Call us</h2>
+    {tel("contact_card", "bignum bignum-sm", B["phone_display"])}
+    <p class="muted">The fastest way to reach us</p>
+  </div>
+  <div class="c-card">
+    <h2>Hours</h2>
+    <p>{B["hours"]}</p>
+    <p class="muted">{B["weekends"]} We are not a 24 hour service.</p>
+  </div>
+  <div class="c-card">
+    <h2>Email</h2>
+    <p><a href="mailto:{B["email"]}">{B["email"]}</a></p>
+    <p class="muted">Serving San Antonio, TX and surrounding areas. <a href="/service-areas/">See areas</a></p>
+  </div>
+</div></section>
+{form_block(heading="Request a free estimate", sec_id="estimate")}
+<section class="svc-faq"><div class="wrap narrow faq">
+  <h2>Common questions</h2>
+  {faq_html(FAQ)}
+</div></section>'''
+    page("/contact/", "Contact JQ Plumbing LLC | San Antonio Plumber | 210-793-6046",
+         f"Call JQ Plumbing at {B['phone_display']} or request a free estimate online. Open {B['hours']}. Serving San Antonio and surrounding areas.",
+         body, "/contact/", [BUSINESS_SCHEMA, crumbs([("Contact", "/contact/")]), faq_schema(FAQ)])
 
 def privacy():
     body = f'''<section class="legal"><div class="wrap narrow">
 <h1>Privacy policy</h1>
 <p>This policy explains what information {B["name"]} collects through this website and how we use it.</p>
 <h2>Information you send us</h2>
-<p>When you fill out our estimate form we collect what you enter, such as your name, phone number, email, ZIP code and a description of your plumbing problem. We use it only to respond to your request and provide our services. We do not sell your information.</p>
+<p>When you fill out our estimate form we collect what you enter, such as your name, phone number, email, ZIP code and a description of your plumbing problem. We use it only to respond to your request and provide our services. We do not sell your information. Form submissions are delivered to us by email through a form delivery service.</p>
 <h2>Analytics and advertising</h2>
 <p>We use Google Analytics and Google Ads to understand how visitors use our site and to measure calls and form requests from our ads. These services may use cookies to collect information such as pages visited and the device used. You can learn how Google uses this data at <a href="https://policies.google.com/technologies/partner-sites" rel="noopener" target="_blank">policies.google.com/technologies/partner-sites</a> and opt out of personalized ads at <a href="https://adssettings.google.com" rel="noopener" target="_blank">adssettings.google.com</a>.</p>
 <h2>Contact</h2>
 <p>Questions about this policy? Email <a href="mailto:{B["email"]}">{B["email"]}</a> or call {tel("privacy", "", B["phone_display"])}.</p>
 </div></section>'''
-    page("/privacy/", "Privacy Policy | JQ Plumbing LLC", f"Privacy policy for {B['name']}, a licensed plumbing company in San Antonio, TX.", body)
+    page("/privacy/", "Privacy Policy | JQ Plumbing LLC", f"Privacy policy for {B['name']}, a licensed plumbing company in San Antonio, TX.", body, "/privacy/")
 
 def not_found():
-    body = f'''<section class="legal"><div class="wrap narrow">
+    body = f'''<section class="page-hero"><div class="wrap">
 <h1>That page is not here</h1>
-<p>The link may be old. Head back to the <a href="/">home page</a>, or call us at {tel("404", "", B["phone_display"])}.</p></div></section>'''
-    out = page("/404-tmp/", "Page not found | JQ Plumbing LLC", "Page not found.", body)
+<p class="hero-sub">The link may be old. Try one of our services below, or call us at {tel("404", "", B["phone_display"])}.</p>
+</div></section>
+<section class="services"><div class="wrap">{svc_cards()}</div></section>'''
+    out = page("/404-tmp/", "Page not found | JQ Plumbing LLC", "Page not found.", body, "")
     os.replace(out, os.path.join(DIST, "404.html")); os.rmdir(os.path.dirname(out))
 
 def extras():
-    urls = ["/", "/drain-cleaning-san-antonio/", "/water-heater-repair-san-antonio/", "/leak-detection-san-antonio/", "/emergency-plumber-san-antonio/", "/privacy/"]
+    urls = ["/", "/services/"] + [svc_path(s) for s in SERVICES] + ["/about/", "/reviews/", "/service-areas/", "/contact/", "/privacy/"]
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + \
         "".join(f"  <url><loc>{B['url']}{u}</loc></url>\n" for u in urls) + "</urlset>\n"
     open(os.path.join(DIST, "sitemap.xml"), "w").write(sm)
@@ -513,9 +653,14 @@ def extras():
 
 if __name__ == "__main__":
     home()
-    for p in PAGES:
-        service_page(p)
+    services_index()
+    for s in SERVICES:
+        service_page(s)
+    about()
+    reviews_page()
+    areas_page()
+    contact_page()
     privacy()
     not_found()
     extras()
-    print("built", DIST)
+    print("built", DIST, len(SERVICES), "service pages")
