@@ -38,7 +38,9 @@ B = {
     "hours": "Monday to Friday, 9am to 5pm",
     "weekends": "Weekends are for scheduled and emergency work.",
     "years": "10",
-    "maps": "https://maps.app.goo.gl/ebH1gkydNdcFtpzK9",
+    "maps": "https://share.google/plbjmm6l2AgL8kuZH",
+    "reviews_all": "https://search.google.com/local/reviews?placeid=ChIJOymPdtwjWwgRBy5KUhyCero",
+    "review_write": "https://g.page/r/CQcuSlIcgnq6EBM/review",
     "facebook": "https://www.facebook.com/61573244019779/",
 }
 
@@ -188,7 +190,7 @@ def footer():
     <div>
       <img src="/img/logo-120.webp" width="130" height="120" alt="{B["short"]} logo" loading="lazy">
       <p><strong>{B["name"]}</strong><br>Texas license {B["license"]}<br>Licensed and insured</p>
-      <p><a href="{B["maps"]}" rel="noopener" target="_blank">Find us on Google</a><br><a href="{B["facebook"]}" rel="noopener" target="_blank">Follow us on Facebook</a></p>
+      <p><a href="{B["maps"]}" target="_blank" rel="noopener noreferrer">Find us on Google</a><br><a href="{B["facebook"]}" target="_blank" rel="noopener noreferrer">Follow us on Facebook</a></p>
     </div>
     <div class="footer-svcs">
       <h2>Services</h2>
@@ -243,7 +245,7 @@ def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preload" href="/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/public-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=4">
+<link rel="stylesheet" href="/css/site.css?v=5">
 <script src="/js/site.js?v=4" defer></script>
 {schema_tags}
 </head>
@@ -573,10 +575,10 @@ def about():
 def reviews_page():
     cards = "".join(review_card(r, full=True) for r in REVIEWS)
     body = page_hero("Customer reviews", "Real reviews from our customers on Google, shared word for word.", [("Reviews", "/reviews/")],
-                     f'<a class="btn btn-ghost-light btn-lg" href="{B["maps"]}" target="_blank" rel="noopener">See us on Google</a>')
+                     f'<a class="btn btn-ghost-light btn-lg" href="{B["maps"]}" target="_blank" rel="noopener noreferrer">See us on Google</a>')
     body += f'''<section class="reviews reviews-page"><div class="wrap">
   <div class="review-list review-masonry">{cards}</div>
-  <p class="center"><a class="btn btn-ghost" href="{B["maps"]}" target="_blank" rel="noopener">Read all our reviews on Google</a></p>
+  <p class="center review-actions"><a class="btn btn-ghost" href="{B["reviews_all"]}" target="_blank" rel="noopener noreferrer">Read all our reviews on Google</a> <a class="btn btn-blue" href="{B["review_write"]}" target="_blank" rel="noopener noreferrer">Leave us a review</a></p>
 </div></section>
 {cta_band("Ready to be our next happy customer?")}'''
     page("/reviews/", "Reviews | JQ Plumbing LLC, San Antonio Plumber",
