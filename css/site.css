@@ -361,3 +361,4 @@ svg{width:1em;height:1em;fill:currentColor;flex:none}
 .callbar-est{background:var(--blue)}
 .callbar svg{width:20px;height:20px}
 @media (min-width:960px){.callbar{display:none}}
+.review-actions{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center}
