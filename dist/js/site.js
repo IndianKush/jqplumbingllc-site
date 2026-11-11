@@ -53,7 +53,7 @@ window.JQ_CONFIG = {
   /* Click to call: every tel: link on the site */
   document.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest('a[href^="tel:"]');
-    if (!a) return;
+    if (!a || a.hasAttribute("data-no-track")) return;
     track("call_click", {
       link_location: a.getAttribute("data-call-location") || "other",
       page_path: location.pathname
