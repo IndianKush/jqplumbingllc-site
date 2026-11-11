@@ -33,7 +33,7 @@ B = {
     "phone_display": "210-793-6046",
     "phone_tel": "+12107936046",
     "license": "RMP-47009",
-    "board_url": "https://www.tsbpe.texas.gov",
+    "board_url": "https://tsbpe.texas.gov",
     "email": "Jonq@jqplumbingllc.com",
     "url": "https://jqplumbingllc.com",
     "hours": "Monday to Friday, 9am to 5pm",
@@ -83,10 +83,12 @@ def review_by(name):
 NAV = [("/about/", "About"), ("/reviews/", "Reviews"), ("/service-areas/", "Service areas"), ("/contact/", "Contact")]
 
 def board_notice(cls):
-    return (f'<div class="{cls}"><span>Texas State Board of Plumbing Examiners</span>'
-            f'<span>7915 Cameron Rd. Austin, TX 78754</span>'
-            f'<span><a href="tel:+15129365200" data-no-track>512-936-5200</a></span>'
-            f'<span><a href="{B["board_url"]}" target="_blank" rel="noopener noreferrer">www.tsbpe.texas.gov</a></span></div>')
+    return (f'<div class="{cls}"><strong>JQ Plumbing LLC</strong>'
+            f'<span>Licensed &amp; Insured | RMP #47009</span>'
+            f'<span>Regulated by the Texas State Board of Plumbing Examiners</span>'
+            f'<span>7915 Cameron Road, Austin, TX 78754</span>'
+            f'<span>Phone: <a href="tel:+15129365200" data-no-track>(512) 936-5200</a></span>'
+            f'<span>Website: <a href="{B["board_url"]}" target="_blank" rel="noopener noreferrer">https://tsbpe.texas.gov</a></span></div>')
 
 def header(active):
     svc_active = active == "services" or active.startswith("svc:")
@@ -97,6 +99,7 @@ def header(active):
     mobile_svcs = "".join(f'<li><a href="{svc_path(s)}">{s["name"]}</a></li>' for s in SERVICES)
     mobile_links = "".join(f'<li><a class="m-link" href="{h}">{t}</a></li>' for h, t in NAV)
     return f'''<a class="skip" href="#main">Skip to content</a>
+<div class="lic-strip">Licensed &amp; Insured | RMP #47009</div>
 <header class="topbar">
   <div class="wrap topbar-in">
     <a class="brand" href="/" aria-label="{B["name"]} home">
@@ -196,7 +199,6 @@ def footer():
   <div class="wrap footer-grid">
     <div>
       <img src="/img/logo-120.webp" width="130" height="120" alt="{B["short"]} logo" loading="lazy">
-      <p><strong>{B["name"]}</strong><br>Texas license {B["license"]}<br>Licensed and insured</p>
       {board_notice("board-foot")}
       <p><a href="{B["maps"]}" target="_blank" rel="noopener noreferrer">Find us on Google</a><br><a href="{B["facebook"]}" target="_blank" rel="noopener noreferrer">Follow us on Facebook</a></p>
     </div>
@@ -253,7 +255,7 @@ def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preload" href="/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/public-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=7">
+<link rel="stylesheet" href="/css/site.css?v=8">
 <script src="/js/site.js?v=5" defer></script>
 {schema_tags}
 </head>
