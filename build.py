@@ -97,7 +97,6 @@ def header(active):
     mobile_svcs = "".join(f'<li><a href="{svc_path(s)}">{s["name"]}</a></li>' for s in SERVICES)
     mobile_links = "".join(f'<li><a class="m-link" href="{h}">{t}</a></li>' for h, t in NAV)
     return f'''<a class="skip" href="#main">Skip to content</a>
-<aside class="board-strip" aria-label="Texas State Board of Plumbing Examiners"><div class="wrap">{board_notice("board-in")}</div></aside>
 <header class="topbar">
   <div class="wrap topbar-in">
     <a class="brand" href="/" aria-label="{B["name"]} home">
@@ -254,7 +253,7 @@ def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preload" href="/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/public-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=6">
+<link rel="stylesheet" href="/css/site.css?v=7">
 <script src="/js/site.js?v=5" defer></script>
 {schema_tags}
 </head>
