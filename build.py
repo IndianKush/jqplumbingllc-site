@@ -80,6 +80,11 @@ def review_by(name):
     return next(r for r in REVIEWS if r["name"] == name)
 
 # ---------------------------------------------------------------- header with services dropdown
+SAMEDAY = {"drain-cleaning-san-antonio","sewer-camera-inspection-san-antonio","water-heater-repair-san-antonio","leak-detection-san-antonio","emergency-plumber-san-antonio"}
+
+def sameday():
+    return f'<p class="sameday">{ICON["check"]}<span>Same day service available</span></p>'
+
 NAV = [("/about/", "About"), ("/reviews/", "Reviews"), ("/service-areas/", "Service areas"), ("/contact/", "Contact")]
 
 def board_notice(cls):
@@ -255,7 +260,7 @@ def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preload" href="/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/public-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=8">
+<link rel="stylesheet" href="/css/site.css?v=9">
 <script src="/js/site.js?v=5" defer></script>
 {schema_tags}
 </head>
@@ -386,6 +391,7 @@ def home():
       <h1>Licensed plumbers for San Antonio homes and businesses</h1>
       <p class="hero-sub">Local and family owned, with {B["years"]} years in the trade. Honest work, fair pricing, and we stand behind it.</p>
       <div class="hero-call">
+        {sameday()}
         {tel("hero_number", "bignum", B["phone_display"])}
         <p class="hero-call-note">{ICON["clock"]}<span>Tap to call. Open {B["hours"]}.</span></p>
       </div>
@@ -480,6 +486,7 @@ def service_page(s):
       <h1>{s["h1"]}</h1>
       <p class="hero-sub">{s["intro"]}</p>
       <div class="hero-call">
+        {sameday() if s["slug"] in SAMEDAY else ""}
         {tel("hero_number", "bignum", B["phone_display"])}
         <p class="hero-call-note">{ICON["clock"]}<span>Tap to call. Open {B["hours"]}.</span></p>
       </div>
@@ -510,6 +517,7 @@ def service_page(s):
   <aside class="signs-note">
     <p>{s["signs_note"]}</p>
     {tel("signs_box", "btn btn-call btn-block btn-lg", ICON["phone"] + "<span>Call " + B["phone_display"] + "</span>")}
+    {sameday() if s["slug"] in SAMEDAY else ""}
     <p class="muted">Open {B["hours"]}. {B["weekends"]}</p>
   </aside>
 </div></section>
