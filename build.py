@@ -11,20 +11,22 @@ from services import SERVICES
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
 
-# GA4 measurement ID lives in one place: JQ_CONFIG.GA4_ID in dist/js/site.js
-import re as _re
-_m = _re.search(r'GA4_ID:\s*"([^"]*)"', open(os.path.join(DIST, "js", "site.js")).read())
-GA4_ID = _m.group(1) if _m else ""
-_a = _re.search(r'ADS_ID:\s*"([^"]*)"', open(os.path.join(DIST, "js", "site.js")).read())
-ADS_ID = _a.group(1) if _a else ""
+GTM_ID = "GTM-5SBR2GC4"
 
-def gtag_head():
-    if not GA4_ID:
-        return ""
-    return (f'<!-- Google tag (gtag.js) -->\n'
-            f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA4_ID}"></script>\n'
-            f'<script>window.JQ_GTAG_IN_HEAD=true;window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}'
-            f'gtag("js",new Date());gtag("config","{GA4_ID}");' + (f'gtag("config","{ADS_ID}");' if ADS_ID else '') + '</script>\n')
+GTM_HEAD = """<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5SBR2GC4');</script>
+<!-- End Google Tag Manager -->
+"""
+
+GTM_BODY = """<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5SBR2GC4"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+"""
 
 B = {
     "name": "JQ Plumbing LLC",
@@ -157,7 +159,7 @@ def facts_strip():
 SERVICE_OPTIONS = [s["select"] for s in SERVICES] + ["Something else"]
 
 def form_block(heading="Get a free estimate", lead=None, preselect="", sec_id="estimate"):
-    lead = lead or f"Tell us what is going on and we will get back to you. Estimates are free within city limits. For anything urgent, call {B['phone_display']}."
+    lead = lead or f"Tell us what is going on and we will get back to you. Estimates are free within city limits. For anything urgent, call {tel("form_text", "", B['phone_display'])}."
     opts = "".join(f'<option{" selected" if o == preselect else ""}>{o}</option>' for o in SERVICE_OPTIONS)
     return f'''<section class="estimate" id="{sec_id}" aria-labelledby="{sec_id}-h">
   <div class="wrap estimate-grid">
@@ -243,9 +245,9 @@ def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
     doc = f'''<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+{GTM_HEAD}<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{gtag_head()}<title>{esc(title)}</title>
+<title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{canonical}">
 <meta name="theme-color" content="#06173A">
@@ -261,11 +263,11 @@ def page(path, title, desc, body, active="", schema=None, og_img="/img/og.jpg"):
 <link rel="preload" href="/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/public-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/site.css?v=9">
-<script src="/js/site.js?v=5" defer></script>
+<script src="/js/site.js?v=6" defer></script>
 {schema_tags}
 </head>
 <body>
-{header(active)}
+{GTM_BODY}{header(active)}
 <main id="main">
 {body}
 </main>
@@ -348,7 +350,7 @@ def review_card(r, full=False):
 
 def steps_html():
     steps = [
-        ("Call or send a request", f"Call {B['phone_display']} or send the estimate form. Tell us what is going on."),
+        ("Call or send a request", f"Call {tel('steps_text', '', B['phone_display'])} or send the estimate form. Tell us what is going on."),
         ("Get a clear estimate", "We look at the problem and give you a clear price before any work starts. Estimates are free within city limits."),
         ("We do the work right", "Licensed, background checked plumbers do the job and clean up when they are done."),
         ("Covered by warranty", "Parts carry the manufacturer warranty, and our workmanship is covered for 90 days to 1 year depending on the job."),
