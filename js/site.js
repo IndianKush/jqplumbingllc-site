@@ -1,52 +1,25 @@
 /* ============================================================
-   TRACKING SETUP. Paste your IDs here. This is the only edit needed.
-   GA4_ID:       Google Analytics 4 measurement ID, like "G-ABC123XYZ"
-   ADS_ID:       Google Ads conversion ID, like "AW-123456789"
-   ADS_CALL_LABEL / ADS_LEAD_LABEL: conversion labels from Google Ads
-   Leave a value as "" to switch that part off.
+   SITE SETTINGS.
+   FORM_ENDPOINT: where estimate requests are emailed (FormSubmit).
+   Google Analytics, Google Ads and conversion tracking are handled by
+   Google Tag Manager (GTM-5SBR2GC4). Do not add Google tags to the site code.
    ============================================================ */
 window.JQ_CONFIG = {
-  GA4_ID: "G-YNLCX6VTJM",
-  ADS_ID: "AW-18473267140",
-  ADS_CALL_LABEL: "r0VCCNCOj7QdEMTf3uhE",
-  ADS_LEAD_LABEL: "mRLICM2Oj7QdEMTf3uhE",
-  /* Where estimate requests are emailed (FormSubmit). After Jon activates it,
-     swap the email for the random alias FormSubmit sends him, to hide the address from spammers. */
+  /* After Jon activates FormSubmit, swap the email for the random alias FormSubmit
+     sends him, to hide the address from spammers. */
   FORM_ENDPOINT: "https://formsubmit.co/ajax/Jonq@jqplumbingllc.com"
 };
 
 (function () {
   var C = window.JQ_CONFIG;
   window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
-  window.gtag = window.gtag || gtag;
 
-  /* Every page already loads the Google tag base snippet in <head> for GA4_ID
-     (build.py reads GA4_ID from this file). Only load it here as a fallback. */
-  var firstId = C.GA4_ID || C.ADS_ID;
-  var inHead = !!window.JQ_GTAG_IN_HEAD;
-  if (firstId && !inHead) {
-    var s = document.createElement("script");
-    s.async = true;
-    s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(firstId);
-    document.head.appendChild(s);
-    gtag("js", new Date());
-    if (C.GA4_ID) gtag("config", C.GA4_ID);
-  }
-  if (C.ADS_ID && !inHead) gtag("config", C.ADS_ID);
-
-  /* Fires one event two ways:
-     1. dataLayer.push({event: name}) for Google Tag Manager triggers
-     2. gtag event for GA4, plus a Google Ads conversion when a label is set */
-  function track(name, params, adsLabel) {
-    params = params || {};
+  /* Pushes a named event to the dataLayer (read by Google Tag Manager).
+     No Google tags are called from here. */
+  function track(name, params) {
     var payload = { event: name };
-    for (var k in params) payload[k] = params[k];
+    for (var k in (params || {})) payload[k] = params[k];
     dataLayer.push(payload);
-    if (firstId) {
-      gtag("event", name, params);
-      if (C.ADS_ID && adsLabel) gtag("event", "conversion", { send_to: C.ADS_ID + "/" + adsLabel });
-    }
   }
   window.jqTrack = track;
 
@@ -57,10 +30,10 @@ window.JQ_CONFIG = {
     track("call_click", {
       link_location: a.getAttribute("data-call-location") || "other",
       page_path: location.pathname
-    }, C.ADS_CALL_LABEL);
+    });
   });
 
-  /* Estimate form: validates, posts to Netlify Forms, fires generate_lead only on success */
+  /* Estimate form: validates, posts to FormSubmit, fires generate_lead only on success */
   document.querySelectorAll("form.form").forEach(function (form) {
     var status = form.querySelector(".form-status");
     var pageField = form.querySelector('input[name="page"]');
@@ -105,7 +78,7 @@ window.JQ_CONFIG = {
           form_name: "estimate",
           service: form.service ? form.service.value : "",
           page_path: location.pathname
-        }, C.ADS_LEAD_LABEL);
+        });
       }).catch(function () {
         btn.disabled = false;
         btn.textContent = "Request my free estimate";
